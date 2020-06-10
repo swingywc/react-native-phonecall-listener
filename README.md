@@ -1,17 +1,83 @@
-# react-native-phonecall-listener
+> ⚠️ NOTE: This package only support Android.
+> Feel free to contribute for iOS side.
+# React Native Phonecall Listener
+This package is for listening to any phonecall received, and get the phone number for further handling.
 
-## Getting started
+### Support Versions
+- React Native 0.59 or above.
+
+## Installation
 
 `$ npm install react-native-phonecall-listener --save`
 
-### Mostly automatic installation
+### Linking For `react-native 0.59`
+> If you are using React Native 0.60 or above, please skip this command as React  Native has autolink function.
 
 `$ react-native link react-native-phonecall-listener`
 
+### Add Android Permissions and Receiver
+
+Open `android/app/src/main/AndroidManifest.xml`:
+- Add permissions:
+```java
+<uses-permission android:name="android.permission.READ_CALL_LOG" />
+<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<uses-permission android:name="android.permission.CALL_PHONE" />
+```
+- Add receiver at the end inside of `<application/>` tag:
+```java
+<receiver android:name="com.reactnative.phonecalllistener.PhoneStateReceiver">
+    <intent-filter>
+        <action android:name="android.intent.action.PHONE_STATE" />
+    </intent-filter>
+</receiver>
+```
+
+## Functions
+| Name | Parameters | Description |
+|--------|---------------|----------|
+| enable() | `null` | Run this function on the component before you receive and record phonecall |
+| disable() | `null` | Run this function on unmount function of component after you finished recording |
+| onCallReceived() | `function` | Phone number will be passed as string into arrow function when received phonecall |
+
+
 ## Usage
+Please use with react native `PermissionsAndroid` to get permission from users.
+
 ```javascript
+import React, { Component } from 'react';
+import { Platform, PermissionsAndroid } from 'react-native';
 import PhonecallListener from 'react-native-phonecall-listener';
 
-// TODO: What to do with the module?
-PhonecallListener;
+class ReceivePhonecallScreen extends Component {
+  phonecallListener;
+
+  async componentDidMount() {
+    await this.listenPhoneCall();
+  }
+
+  componentWillUnmount() {
+    this.phonecallListener && this.phonecallListener.remove();
+    PhonecallListener.disable();
+  }
+
+  listenPhoneCall = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await PhonecallListener.enable();
+        this.phonecallListener = PhonecallListener.onCallReceived(this.handlePhoneNumber);
+      } else {
+        Alert.alert("Permission denied from user for read phone state");
+      }
+    }
+  };
+
+  handlePhoneNumber = (phoneNumber) => {
+    // handle phoneNumber here...
+  };
+
+  ...
+  render() {...}
+}
 ```
