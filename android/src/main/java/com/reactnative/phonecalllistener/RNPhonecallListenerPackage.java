@@ -1,4 +1,4 @@
-package com.reactlibrary;
+package com.reactnative.phonecalllistener;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,10 +10,10 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
 
-public class PhonecallListenerPackage implements ReactPackage {
+public class RNPhonecallListenerPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.<NativeModule>asList(new PhonecallListenerModule(reactContext));
+        return Arrays.<NativeModule>asList(new RNPhonecallListenerModule(reactContext));
     }
 
     @Override
