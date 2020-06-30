@@ -63,8 +63,9 @@ class ReceivePhonecallScreen extends Component {
 
   listenPhoneCall = async () => {
     if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      const isCallLogGranted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CALL_LOG) === PermissionsAndroid.RESULTS.GRANTED;
+      const isPhoneStateGranted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE) === PermissionsAndroid.RESULTS.GRANTED;
+      if (isCallLogGranted && isPhoneStateGranted) {
         await PhonecallListener.enable();
         this.phonecallListener = PhonecallListener.onCallReceived(this.handlePhoneNumber);
       } else {
@@ -81,6 +82,13 @@ class ReceivePhonecallScreen extends Component {
   render() {...}
 }
 ```
+
+## Troubleshooting
+
+#### `PhonecallListener.onCallReceived` cannot detect the phonecall in Android 9 or above devices
+If you try to print the `incomingNumber` in the Android native side, you should find that the value is `null`.
+It is because in Android 9 or above version, applications need to request both `PERMISSIONS.READ_CALL_LOG` and `PERMISSIONS.READ_PHONE_STATE` in live. 
+Missing either one of the permissions will be failed to get the phone number. You can have a look on the sample codes above to learn how to request Android permissions in `react-native`.
 
 ## TO-DO
 
